@@ -1,27 +1,16 @@
 (ns oj.test
-  (:require [clojure.test :refer :all]))
+  (:require [clojure.test :refer :all]
+            [oj.numberfun :as numberfun]))
 
-(def test-seq (range 100))
 
-(defn number->sum-of-digits [number]
-  (->>
-    number
-    str
-    (map (fn [digit]
-           (->>
-             digit
-             str
-             read-string)))
-    (reduce +)))
-
-(defn number-contains-number? [ref-number number-to-find]
-  (let [ref-str (str ref-number)
-        test-str (str number-to-find)]
-    (.contains ref-str test-str)))
+(def test-seq (range 1000))
 
 (deftest computes-some-numbers
-  (doseq [test-no test-seq]
-    (let [sum (number->sum-of-digits test-no)
-          is-contained (number-contains-number? test-no sum)]
-      (if is-contained
-        (println "number contains the sum of its digits: " test-no)))))
+  (let [fun-numbers (filter
+                      (fn [item]
+                        (numberfun/number-contains-number?
+                          item
+                          (numberfun/number->sum-of-digits item)))
+                      test-seq)]
+    (println "fun numbers: " fun-numbers)
+    (is (= 48 (count fun-numbers)))))
