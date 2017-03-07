@@ -1,5 +1,8 @@
 (ns oj.webapp
-  (:use org.httpkit.server))
+  (:use org.httpkit.server)
+  (:require [compojure.core :refer :all]
+            [compojure.route :as route]
+            [compojure.handler :refer [site]]))
 
 (defn app [req]
   {:status  200
@@ -15,6 +18,9 @@
     (@server :timeout 100)
     (reset! server nil)))
 
+(defroutes ze-routes
+           (GET "/" [] "<h1> hi </h1>"))
+
 (defn -main [& args]
   (let [port (Integer/parseInt (get (System/getenv) "OPENSHIFT_CLOJURE_HTTP_PORT" "8080"))
         ip (get (System/getenv) "OPENSHIFT_CLOJURE_HTTP_IP" "0.0.0.0")]
@@ -22,4 +28,4 @@
     ;; The #' is useful when you want to hot-reload code
     ;; You may want to take a look: https://github.com/clojure/tools.namespace
     ;; and http://http-kit.org/migration.html#reload
-    (reset! server (run-server #'app {:port port :ip ip}))))
+    (reset! server (run-server (site #'ze-routes) {:port port :ip ip}))))
