@@ -11,7 +11,13 @@
   {:x 3 :y 2}
   {:x 4 :y 2}
   {:x 5 :y 3}...]"
-  
+  (let [max-num   (apply max numbers)
+        domain    (range 0 max-num 1)
+        empty-map (atom {})]
+    (doseq [x domain]
+      (swap! empty-map assoc x 0))
+    ;;TODO for every number in numbers, increment values for all keys smaller than number by 1
+    )
   )
 
 (defn number->sum-of-digits [number]
