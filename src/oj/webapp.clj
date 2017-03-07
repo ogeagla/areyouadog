@@ -6,8 +6,20 @@
    :headers {"Content-Type" "text/html"}
    :body    "Yes, I are a dog"})
 
+(defonce server (atom nil))
+
+(defn stop-server []
+  (when-not (nil? @server)
+    ;; graceful shutdown: wait 100ms for existing requests to be finished
+    ;; :timeout is optional, when no timeout, stop immediately
+    (@server :timeout 100)
+    (reset! server nil)))
+
 (defn -main [& args]
   (let [port (Integer/parseInt (get (System/getenv) "OPENSHIFT_CLOJURE_HTTP_PORT" "8080"))
         ip (get (System/getenv) "OPENSHIFT_CLOJURE_HTTP_IP" "0.0.0.0")]
     (println "Running app on: " ip ":" port)
-    (run-server app {:ip ip :port port})))
+    ;; The #' is useful when you want to hot-reload code
+    ;; You may want to take a look: https://github.com/clojure/tools.namespace
+    ;; and http://http-kit.org/migration.html#reload
+    (reset! server (run-server #'app {:port port :ip ip}))))
