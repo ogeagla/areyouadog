@@ -2,12 +2,8 @@
   (:use org.httpkit.server)
   (:require [compojure.core :refer :all]
             [compojure.route :as route]
-            [compojure.handler :refer [site]]))
-
-(defn app [req]
-  {:status  200
-   :headers {"Content-Type" "text/html"}
-   :body    "Yes, I are a dog"})
+            [compojure.handler :refer [site]]
+            [oj.nvc :as nvc]))
 
 (defonce server (atom nil))
 

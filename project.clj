@@ -3,7 +3,9 @@
   :dependencies [[org.clojure/clojure "1.9.0-alpha14"]
                  [http-kit "2.2.0"]
                  [compojure "1.5.2"]
-                 [thi.ng/geom "0.0.908"]]
+                 [thi.ng/geom "0.0.908"]
+                 [hiccup "1.0.5"]
+                 [clj-fuzzy "0.3.3"]]
   ;:local-repo ~(System/getenv "M2_REPO")
   :main oj.webapp
   :profiles
