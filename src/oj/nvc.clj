@@ -18,9 +18,18 @@
    :boxed-in  {:primary-feelings [:frustrated :scared :anxious]
                :underlying-needs [:autonomy :choice :freedom :self-efficacy]}
 
+   :coerced {:primary-feelings [:angry :frustrated :scared :anxious]
+            :underlying-needs [:autonomy :choice :freedom :self-efficacy]}
 
-   ;:blamed {:primary-feelings []
-   ;         :underlying-needs []}
+   ;: {:primary-feelings []
+   ;   :underlying-needs []}
+   ;
+   ;: {:primary-feelings []
+   ;   :underlying-needs []}
+   ;
+   ;: {:primary-feelings []
+   ;   :underlying-needs []}
+
 
    })
 
@@ -37,7 +46,7 @@
   (let [the-keys     (keys causal-attributions)
         keys-w-score (map
                        (fn [the-key]
-                         (hash-map :key the-key
+                         (hash-map :matched-key the-key
                                    :distance (get-distance target the-key)))
                        the-keys)
         best         (first (sort-by :distance keys-w-score))]
@@ -48,10 +57,22 @@
   or if the word is not in the map, search for the key
   which is closest in word distance to the target attribute
   and return the values for that"
-  (let [val-or-nil (get causal-attributions (keyword target-attribute))]
-    (case val-or-nil
-      nil (get causal-attributions
-               (:key
-                 (get-closest-key-and-distance target-attribute)))
-      val-or-nil)))
+  (let [target-kw    (keyword target-attribute)
+        it-contains? (contains? causal-attributions target-kw)]
+    (if it-contains?
+      {:values            (get causal-attributions target-kw)
+       :target-attribute  target-attribute
+       :matched-attribute target-attribute}
+      (let [{:keys [matched-key distance]} (get-closest-key-and-distance target-attribute)
+            matched-val (get causal-attributions matched-key)]
+        {:values            matched-val
+         :target-attribute  target-attribute
+         :matched-attribute matched-key}))))
+
+(defn primary-feeling->underlying-needs [target-primary-feeling]
+  "for a given primary feeling, get the underlying needs
+  which may be responsible. fuzzy matches on the feeling
+  and returns the possible causal attribution by which
+  the underlying needs was matched"
+  ())
 
