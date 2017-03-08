@@ -62,7 +62,7 @@
     (if it-contains?
       {:values            (get causal-attributions target-kw)
        :target-attribute  target-attribute
-       :matched-attribute target-attribute}
+       :matched-attribute target-kw}
       (let [{:keys [matched-key distance]} (get-closest-key-and-distance target-attribute)
             matched-val (get causal-attributions matched-key)]
         {:values            matched-val
