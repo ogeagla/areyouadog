@@ -1,7 +1,7 @@
 (ns oj.test
   (:require [clojure.test :refer :all]
             [oj.numberfun :as numberfun]
-            [oj.nvc :as nvc]))
+            [oj.nvc.core :as nvc]))
 
 (def test-seq (range 1000))
 (deftest computes-fun-numbers
