@@ -4,8 +4,8 @@
 
 (defn- get-distance [one two]
   "returns distance between strings,
-  0 meaning identical,
-  1 meaning completely different"
+  0.0 meaning identical,
+  1.0 meaning completely different"
   (fuzzy/jaccard (str one) (str two)))
 
 (defn- get-closest-key-and-distance [target]
@@ -43,6 +43,21 @@
   which may be responsible. fuzzy matches on the feeling
   and returns the possible causal attribution by which
   the underlying needs was matched"
-  ()
-  )
+  (let [feelings-w-match-dist (map (fn [feeling]
+                                     {:primary-feeling feeling
+                                      :distance        (get-distance feeling target-primary-feeling)})
+                                   dictionary/all-primary-feelings)
+        best                  (first (sort-by :distance feelings-w-match-dist))
+        best-match-feeling    (:primary-feeling best)
+        needs                 (->> dictionary/causal-attributions
+                                   (map (fn [[k v]]
+                                          (if (some #{best-match-feeling} (:primary-feelings v))
+                                            (:underlying-needs v))))
+                                   (remove nil?)
+                                   flatten
+                                   (apply hash-set))]
+    (println "provided feeling: ")
+    (println "best matched feeling: " best-match-feeling)
+    (println "its corresponding needs: " needs)
+    needs))
 

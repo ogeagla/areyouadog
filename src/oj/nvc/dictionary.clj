@@ -43,3 +43,10 @@
    ;   :underlying-needs []}
 
    })
+
+(def all-primary-feelings
+  (->> causal-attributions
+       vals
+       (map :primary-feelings)
+       flatten
+       (apply hash-set)))

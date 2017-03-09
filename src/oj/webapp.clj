@@ -3,7 +3,7 @@
   (:require [compojure.core :refer :all]
             [compojure.route :as route]
             [compojure.handler :refer [site]]
-            [oj.core :as nvc]))
+            [oj.nvc.core :as nvc]))
 
 (defonce server (atom nil))
 
