@@ -3,9 +3,7 @@
             [oj.numberfun :as numberfun]
             [oj.nvc :as nvc]))
 
-
 (def test-seq (range 1000))
-
 (deftest computes-some-numbers
   (let [fun-numbers (filter
                       (fn [item]
@@ -16,9 +14,9 @@
     (println "fun numbers: " fun-numbers)
     (is (= 48 (count fun-numbers)))))
 
-(def causal-attributions ["attacked" "atakked"])
-
+(def causal-attributions ["attacked" "atakked" "attack"])
 (deftest gets-feelings-and-needs-for-causal-attribution-with-fuzzy-match
-  (let [mapped (map nvc/causal-attribution->primary-feelings-and-underlying-needs causal-attributions)]
+  (let [mapped (map nvc/causal-attribution->primary-feelings-and-underlying-needs
+                    causal-attributions)]
     (doseq [result mapped]
       (is (= :attacked (:matched-attribute result))))))
