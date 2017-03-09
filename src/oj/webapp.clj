@@ -3,7 +3,8 @@
   (:require [compojure.core :refer :all]
             [compojure.route :as route]
             [compojure.handler :refer [site]]
-            [oj.nvc.core :as nvc]))
+            [oj.nvc.core :as nvc]
+            [hiccup.core :refer :all]))
 
 (defonce server (atom nil))
 
@@ -14,8 +15,11 @@
     (@server :timeout 100)
     (reset! server nil)))
 
+(def homepage
+  (html [:span {:class "foo"} "asdfbar"]))
+
 (defroutes ze-routes
-           (GET "/" [] "<h1> hi </h1>"))
+           (GET "/" [] homepage))
 
 (defn -main [& args]
   (let [port (Integer/parseInt (get (System/getenv) "OPENSHIFT_CLOJURE_HTTP_PORT" "8080"))

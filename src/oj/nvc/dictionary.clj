@@ -50,3 +50,10 @@
        (map :primary-feelings)
        flatten
        (apply hash-set)))
+
+(def all-underlying-feelings
+  (->> causal-attributions
+       vals
+       (map :underlying-needs)
+       flatten
+       (apply hash-set)))
