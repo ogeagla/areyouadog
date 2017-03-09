@@ -2,6 +2,18 @@
 
 # Fun Numbers Notes
 
+We define 'fun numbers' as numbers whose sum-of-digits is present in the number itself:
+
+For a number, `N`, to be a 'fun number', we first write `C` in base 10 (currently the only supported base):
+```
+N = a*10^0 + b*10^1 + c*10^2 + ...
+```   
+Then `N` is a 'fun number' iff:
+```
+S = a + b + c + ...
+```
+s.t. the string `S` is contained in the string `N`, e.g. `45` is contained in `123456`.
+
 # NVC Notes
 
 4 step process, applicable to both:
@@ -19,7 +31,7 @@ I. What I observe (see, hear, remember, imagine, free from my evaluations) that 
 
 II. What you observe (see, hear, remember, imagine, free from your evaluations) that does or does not contribute to you well-being:
 ```
-When you see/hear...
+"When you see/hear..."
 ```
 
 #### Feelings 
@@ -30,25 +42,25 @@ I. How I feel (emotion or sensation rather than thought) in relation to what I o
 ```
 II. How you feel (emotion or sensation rather than thought) in relation to what you observe:
 ```
-You feel...
+"You feel..."
 ```
 #### Needs
 
 I. What I need or value (rather than a preference, or a specific action) that causes my feelings:
 ```
-...because I need/value...
+"...because I need/value..."
 ```
 II. What you need or value (rather than a preference, or a specific action) that causes your feelings:
 ```
-...because you need/value...
+"...because you need/value..."
 ```
 
 #### Requests
 I. Clearly requesting that which would enrich __my__ life without demanding.  The concrete actions I would like taken:
 ```
-Would you be willing to ...?
+"Would you be willing to ...?"
 ```
 II. Empathically receiving that which would enrich __your__ life without hearing any demand:
 ```
-Would you like to...?
+"Would you like to...?"
 ```
