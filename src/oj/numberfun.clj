@@ -35,3 +35,11 @@
   (let [ref-str  (str ref-number)
         test-str (str number-to-find)]
     (.contains ref-str test-str)))
+
+(defn filter-fun-numbers [seq]
+  (filter
+    (fn [item]
+      (number-contains-number?
+        item
+        (number->sum-of-digits item)))
+    seq))
