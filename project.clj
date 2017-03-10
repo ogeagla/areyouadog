@@ -5,7 +5,8 @@
                  [compojure "1.5.2"]
                  [thi.ng/geom "0.0.908"]
                  [hiccup "1.0.5"]
-                 [clj-fuzzy "0.3.3"]]
+                 [clj-fuzzy "0.3.3"]
+                 [clojure-opennlp "0.3.3"]]
   ;:local-repo ~(System/getenv "M2_REPO")
   :main oj.webapp
   :profiles
