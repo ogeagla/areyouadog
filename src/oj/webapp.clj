@@ -4,7 +4,9 @@
             [compojure.route :as route]
             [compojure.handler :refer [site]]
             [oj.nvc.core :as nvc]
-            [hiccup.core :refer :all]))
+            [oj.nvc.dictionary :as nvcd]
+            [hiccup.core :refer :all]
+            [hiccup.form :refer :all]))
 
 (defonce server (atom nil))
 
@@ -16,16 +18,30 @@
     (reset! server nil)))
 
 (def homepage
-  (html [:span {:class "foo"} "asdfbar"]))
+  (html
+    [:h2 "Causal words: "]
+    [:ul
+     (for [cw nvcd/all-causal-words]
+       [:li cw])]
+    [:h2 "Primary feelings: "]
+    [:ul
+     (for [cw nvcd/all-primary-feelings]
+       [:li cw])]
+    [:h2 "Underlying needs: "]
+    [:ul
+     (for [cw nvcd/all-underlying-needs]
+       [:li cw])]))
 
 (defroutes ze-routes
            (GET "/" [] homepage))
 
 (defn -main [& args]
   (let [port (Integer/parseInt (get (System/getenv) "OPENSHIFT_CLOJURE_HTTP_PORT" "8080"))
-        ip (get (System/getenv) "OPENSHIFT_CLOJURE_HTTP_IP" "0.0.0.0")]
+        ip   (get (System/getenv) "OPENSHIFT_CLOJURE_HTTP_IP" "0.0.0.0")]
     (println "Running app on: " ip ":" port)
     ;; The #' is useful when you want to hot-reload code
     ;; You may want to take a look: https://github.com/clojure/tools.namespace
     ;; and http://http-kit.org/migration.html#reload
-    (reset! server (run-server (site #'ze-routes) {:port port :ip ip}))))
+    (reset! server (run-server
+                     (site #'ze-routes)
+                     {:port port :ip ip}))))
