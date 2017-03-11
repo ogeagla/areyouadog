@@ -7,11 +7,17 @@
             [clojure.pprint :as pp]
             ))
 
-(defn- get-distance [one two]
+(defn- get-distance [one two & {:keys [algo] :or {algo :jw}}]
   "returns distance between strings,
   0.0 meaning identical,
   1.0 meaning completely different"
-  (fuzzy/jaccard (str one) (str two)))
+  (let [jacc (fn [one two] (fuzzy/jaccard (str one) (str two)))
+        jw   (fn [one two] (- 1.0 (fuzzy/jaro-winkler (str one) (str two))))]
+    (case algo
+      :jw (jw one two)
+      :jacc (jacc one two)
+      (jw one two))))
+
 
 (defn- get-closest-key-and-distance [target]
   "for a given word, returns the key of
@@ -80,7 +86,7 @@
                              (fn [[verb pos]]
                                (let [rec (causal-attribution->primary-feelings-and-underlying-needs
                                            verb
-                                           :max-distance 0.5)]
+                                           :max-distance 0.2)]
                                  (if rec
                                    {:verb    verb
                                     :helpers rec})))
@@ -140,7 +146,7 @@
 
 
 (defn- feeling-word-means-needs-met-or-not [feeling-word]
-  (let [threshold 0.35
+  (let [threshold 0.2
         stuff     (remove nil?
                           (map (fn [the-map]
                                  (let [recs-map         (feeling-word-map->recommendations the-map feeling-word threshold)
