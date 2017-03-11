@@ -1,6 +1,7 @@
 (defproject clojureapp "0.1.0-SNAPSHOT"
   :plugins [[lein-ring "0.11.0"]]
   :dependencies [[org.clojure/clojure "1.9.0-alpha14"]
+                 [instaparse "1.4.5"]
                  [http-kit "2.2.0"]
                  [compojure "1.5.2"]
                  [thi.ng/geom "0.0.908"]
