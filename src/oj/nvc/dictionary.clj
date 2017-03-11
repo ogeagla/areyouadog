@@ -1,8 +1,18 @@
 (ns oj.nvc.dictionary)
 
+(def feeling-words
+  [{:needs-not-met {:summary :hostile :synonyms [:animosity :antagonistic :appalled :aversion :cold :contempt :disguisted :dislike :distain :hate :horrified :repulsed :scorn :surly :vengeful :vindictive]}
+    :needs-are-met {:summary :exhilarated :synonyms [:ecstatic :elated :enthralled :exuberant :giddy :silly :slap-happy]}}
+
+   {:needs-not-met {:summary :angry :synonyms [:enraged :furious :incensed :indignant :irate :livid :mad :outraged :resentful :ticked-off]}
+    :needs-are-met {:summary :excited :synonyms [:alive :amazed :animated :eager :energetic :enthusiastic :invigorated :lively :passionate]}}
+
+   ;{:needs-not-met {:# []}
+   ; :needs-are-met {:# []}}
+   ])
+
 (def causal-attributions
-  {
-   :attacked           {:primary-feelings [:scared :angry]
+  {:attacked           {:primary-feelings [:scared :angry]
                         :underlying-needs [:safety :respect]}
 
    :belittled          {:primary-feelings [:indignant :distressed :tense :embarrassed :outraged]
