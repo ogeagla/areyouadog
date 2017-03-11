@@ -17,6 +17,9 @@
     (@server :timeout 100)
     (reset! server nil)))
 
+(defn map-tag [tag xs]
+  (map (fn [x] [tag x]) xs))
+
 (def homepage
   (html
     [:h2 "Causal words: "]
@@ -30,7 +33,13 @@
     [:h2 "Underlying needs: "]
     [:ul
      (for [cw nvcd/all-underlying-needs]
-       [:li cw])]))
+       [:li cw])]
+
+    [:h2 "Needs are being met?: "]
+    [:table
+     [:tr (map-tag :th ["are met" "not met"])]
+     [:tr (for [{:keys [needs-not-met needs-are-met]} nvcd/feeling-words]
+            [:tr [:td (str needs-are-met)] [:td (str needs-not-met)]])]]))
 
 (defroutes ze-routes
            (GET "/" [] homepage))
