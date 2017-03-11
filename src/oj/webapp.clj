@@ -42,7 +42,13 @@
             [:tr [:td (str needs-are-met)] [:td (str needs-not-met)]])]]))
 
 (defroutes ze-routes
-           (GET "/" [] homepage))
+           (GET "/" [] homepage)
+           (POST "/nvc" req (let [text-body (get (:params req) :text)
+                                  _         (println "req: " req)
+                                  nvc-body  (nvc/text->nvc text-body)]
+                              (println "resp: " nvc-body)
+                              {:original text-body
+                               :nvc      nvc-body})))
 
 (defn -main [& args]
   (let [port (Integer/parseInt (get (System/getenv) "OPENSHIFT_CLOJURE_HTTP_PORT" "8080"))
