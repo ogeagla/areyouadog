@@ -7,8 +7,39 @@
    {:needs-not-met {:summary :angry :synonyms [:enraged :furious :incensed :indignant :irate :livid :mad :outraged :resentful :ticked-off]}
     :needs-are-met {:summary :excited :synonyms [:alive :amazed :animated :eager :energetic :enthusiastic :invigorated :lively :passionate]}}
 
-   ;{:needs-not-met {:# []}
-   ; :needs-are-met {:# []}}
+   {:needs-not-met {:summary :annoyed :synonyms [:aggravated :bitter :cranky :cross :dismayed :disgruntled :displeased :exasperated :frustrated :grouchy :impatient :irked :irritated :miffed :peeved :resentful :sullen :uptight]}
+    :needs-are-met {:summary :inspired :synonyms [:amazed :astonished :awed :dazzled :radiant :rapturous :surprised :thrilled :uplifted :wonder]}}
+
+   ;{:needs-not-met {:summary :# :synonyms []}
+   ; :needs-are-met {:summary :# :synonyms []}}
+
+   ;{:needs-not-met {:summary :# :synonyms []}
+   ; :needs-are-met {:summary :# :synonyms []}}
+
+   ;{:needs-not-met {:summary :# :synonyms []}
+   ; :needs-are-met {:summary :# :synonyms []}}
+
+   ;{:needs-not-met {:summary :# :synonyms []}
+   ; :needs-are-met {:summary :# :synonyms []}}
+
+   ;{:needs-not-met {:summary :# :synonyms []}
+   ; :needs-are-met {:summary :# :synonyms []}}
+
+   ;{:needs-not-met {:summary :# :synonyms []}
+   ; :needs-are-met {:summary :# :synonyms []}}
+
+   ;{:needs-not-met {:summary :# :synonyms []}
+   ; :needs-are-met {:summary :# :synonyms []}}
+
+   ;{:needs-not-met {:summary :# :synonyms []}
+   ; :needs-are-met {:summary :# :synonyms []}}
+
+   ;{:needs-not-met {:summary :# :synonyms []}
+   ; :needs-are-met {:summary :# :synonyms []}}
+
+   ;{:needs-not-met {:summary :# :synonyms []}
+   ; :needs-are-met {:summary :# :synonyms []}}
+
    ])
 
 (def causal-attributions

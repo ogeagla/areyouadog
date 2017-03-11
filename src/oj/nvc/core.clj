@@ -123,15 +123,19 @@
                                  {:word             feeling-word
                                   :not-met-summary  not-key
                                   :not-met-synonyms not-vals
-                                  :recommendation   (str "You said: " feeling-word " Are you trying to say your need to feel " are-key " is NOT being met? Do these other words describe your needs better? " are-vals " Do these other words better describe how you are feeling? " not-vals)})
+                                  :recommendation   (str "You said: " feeling-word ". Are you trying to say your need to feel " are-key " is NOT being met? Do these other words describe your needs better? " are-vals " Do these other words better describe how you are feeling? " not-vals)})
         are-rec                (if (or (not-empty synonyms-are-distances)
                                        (<= summary-are-distance threshold))
                                  {:word             feeling-word
                                   :are-met-summary  are-key
                                   :are-met-synonyms are-vals
-                                  :recommendation   (str "You said: " feeling-word " Are you trying to say your need to feel " are-key " is being met? Or do these other words describe it better? " are-vals)})]
-    (into {} (filter (comp some? val) {:are-met-rec are-rec
-                                       :not-met-rec not-rec}))))
+                                  :recommendation   (str "You said: " feeling-word ". Are you trying to say your need to feel " are-key " is being met? Or do these other words describe it better? " are-vals)})]
+
+
+    ;(into {} (filter (comp some? val) {:are-met-rec are-rec
+    ;                                   :not-met-rec not-rec}))
+    (merge not-rec are-rec)
+    ))
 
 
 
@@ -140,8 +144,8 @@
         stuff     (remove nil?
                           (map (fn [the-map]
                                  (let [recs-map         (feeling-word-map->recommendations the-map feeling-word threshold)
-                                       recs-map-cleaned (if (or (contains? recs-map :are-met-rec)
-                                                                (contains? recs-map :not-met-rec))
+                                       recs-map-cleaned (if (or (contains? recs-map :are-met-summary)
+                                                                (contains? recs-map :not-met-summary))
                                                           recs-map)]
                                    recs-map-cleaned))
                                dictionary/feeling-words))]
@@ -149,12 +153,12 @@
 
 (defn- needs-not-being-met-recommender [tokens-w-pos]
   (let [words         (filter (fn [[t pos]] (< 1 (.length t))) tokens-w-pos)
-        feeling-words (remove nil? (map (fn [[word pos]]
-                                          (let [recs (feeling-word-means-needs-met-or-not word)]
-                                            (if-not (empty? recs)
-                                              {:word            word
-                                               :recommendations recs})))
-                                        words))]
+        feeling-words (flatten (remove nil? (map (fn [[word pos]]
+                                                   (let [recs (feeling-word-means-needs-met-or-not word)]
+                                                     (if-not (empty? recs)
+                                                       {:word            word
+                                                        :recommendations recs})))
+                                                 words)))]
     feeling-words))
 
 
@@ -162,15 +166,28 @@
   (let [parts-of-speech          (pos-tag (tokenize sentence))
         causal-recs              (causal-attribution-rephrasing-recommender parts-of-speech)
         needs-not-being-met-recs (needs-not-being-met-recommender parts-of-speech)
-        recs-document            {:causal-attr-recs   causal-recs
-                                  :needs-not-met-recs needs-not-being-met-recs
-                                  :sentence           sentence}]
-    (pp/pprint recs-document)
+        recs-document            {:causal-attr-recs causal-recs
+                                  :needs-recs       needs-not-being-met-recs
+                                  :sentence         sentence}
+        just-caus-recs           (map :recommendation causal-recs)
+        just-needs-recs          (->> needs-not-being-met-recs
+                                      (map :recommendations)
+                                      flatten
+                                      (map :recommendation))
+        ]
+    (println "BEGIN SENTENCE RECOMMENDATIONS ***************************************************")
+    (pp/pprint just-caus-recs)
+    (pp/pprint just-needs-recs)
+    (println "END SENTENCE RECOMMENDATIONS ***************************************************")
+    ;(println "BEGIN SENTENCE RECOMMENDATIONS DETAILS ***************************************************")
+    ;(pp/pprint recs-document)
+    ;(println "END SENTENCE RECOMMENDATIONS DETAILS ***************************************************")
     recs-document))
 
 (defn text->nvc [text]
-  (let [sentences (get-sentences text)]
-    (map sentence->nvc sentences)))
+  (let [sentences (get-sentences text)
+        analysis  (map sentence->nvc sentences)]
+    analysis))
 
 
 
