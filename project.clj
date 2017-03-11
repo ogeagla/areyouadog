@@ -8,7 +8,7 @@
                  [hiccup "1.0.5"]
                  [clj-fuzzy "0.3.3"]
                  [clojure-opennlp "0.3.3"]]
-  ;:local-repo ~(System/getenv "M2_REPO")
+  :local-repo ~(System/getenv "M2_REPO")
   :main oj.webapp
   :profiles
   {:dev {:dependencies [[javax.servlet/servlet-api "2.5"]
