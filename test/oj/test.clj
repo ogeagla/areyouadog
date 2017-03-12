@@ -14,6 +14,16 @@
   (is (= true (numberfun/number-contains-number? 123456 45)))
   (is (= true (numberfun/number-contains-number? 123456 123456))))
 
+(deftest number-starts-with
+  (is (= true (numberfun/number-big-end-is-number? 123456 1234)))
+  (is (= true (numberfun/number-big-end-is-number? 1 1)))
+  (is (= false (numberfun/number-big-end-is-number? 2123456 1234))))
+
+(deftest number-ends-with
+  (is (= true (numberfun/number-little-end-is-number? 123456 456)))
+  (is (= true (numberfun/number-little-end-is-number? 1 1)))
+  (is (= false (numberfun/number-little-end-is-number? 21234565 456))))
+
 (deftest accumulates-freq
   (let [numbers       #{1 3 5}
         expected      {0 0
@@ -53,9 +63,17 @@
         recs (nvc/text->nvc text)]
     (is (= expected-recs recs))))
 
-(def test-plot-seq (range 100000))
+(def test-plot-seq (range 10000))
 (deftest plot
-  (let [fun-numbers (numberfun/filter-fun-numbers test-plot-seq)
-        fun-acc     (numberfun/numbers->cumulative-truth-count fun-numbers)
-        fun-scatter (numberfun/mapxy->vecsxy fun-acc)]
-    (plots/do-plot fun-scatter "test-output.svg")))
+  (let [fun-numbers            (numberfun/filter-fun-numbers test-plot-seq)
+        fun-numbers-big-end    (numberfun/filter-fun-numbers test-plot-seq :position :big-end)
+        fun-numbers-little-end (numberfun/filter-fun-numbers test-plot-seq :position :little-end)
+        fun-acc                (numberfun/numbers->cumulative-truth-count fun-numbers)
+        fun-scatter            (numberfun/mapxy->vecsxy fun-acc)
+        fun-big-acc                (numberfun/numbers->cumulative-truth-count fun-numbers-big-end)
+        fun-big-scatter            (numberfun/mapxy->vecsxy fun-big-acc)
+        fun-little-acc                (numberfun/numbers->cumulative-truth-count fun-numbers-little-end)
+        fun-little-scatter            (numberfun/mapxy->vecsxy fun-little-acc)]
+    (plots/do-plot fun-scatter "test-output.svg")
+    (plots/do-plot fun-big-scatter "test-output-big-end.svg")
+    (plots/do-plot fun-little-scatter "test-output-little-end.svg")))
