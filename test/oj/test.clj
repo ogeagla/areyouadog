@@ -1,7 +1,8 @@
 (ns oj.test
   (:require [clojure.test :refer :all]
             [oj.numberfun :as numberfun]
-            [oj.nvc.core :as nvc]))
+            [oj.nvc.core :as nvc]
+            [oj.plots :as plots]))
 
 (def test-seq (range 1000))
 (deftest computes-fun-numbers
@@ -14,14 +15,22 @@
   (is (= true (numberfun/number-contains-number? 123456 123456))))
 
 (deftest accumulates-freq
-  (let [numbers  #{1 3 5}
-        expected {0 0
-                  1 1
-                  2 1
-                  3 2
-                  4 2
-                  5 3}]
-    (is (= expected (numberfun/numbers->cumulative-truth-count numbers)))))
+  (let [numbers       #{1 3 5}
+        expected      {0 0
+                       1 1
+                       2 1
+                       3 2
+                       4 2
+                       5 3}
+        expected-vecs [[0 0]
+                       [1 1]
+                       [2 1]
+                       [3 2]
+                       [4 2]
+                       [5 3]]
+        actuals       (numberfun/numbers->cumulative-truth-count numbers)]
+    (is (= expected actuals))
+    (is (= expected-vecs (numberfun/mapxy->vecsxy actuals)))))
 
 (def causal-attributions ["attacked" "atakked" "attack"])
 (deftest gets-feelings-and-needs-for-causal-attribution-with-fuzzy-match
@@ -43,3 +52,10 @@
   (let [text "I can't believe how much of an asshole you've been recently.  You treat me like shit and need to learn to calm the fuck down."
         recs (nvc/text->nvc text)]
     (is (= expected-recs recs))))
+
+(def test-plot-seq (range 100000))
+(deftest plot
+  (let [fun-numbers (numberfun/filter-fun-numbers test-plot-seq)
+        fun-acc     (numberfun/numbers->cumulative-truth-count fun-numbers)
+        fun-scatter (numberfun/mapxy->vecsxy fun-acc)]
+    (plots/do-plot fun-scatter "test-output.svg")))

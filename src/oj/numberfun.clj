@@ -16,6 +16,9 @@
         (swap! acc-map update-in [x] inc)))
     @acc-map))
 
+(defn mapxy->vecsxy [the-map]
+  (map (fn [[k v]] [k v]) the-map))
+
 (defn number->sum-of-digits [number]
   (->>
     number
