@@ -86,7 +86,7 @@
                              (fn [[verb pos]]
                                (let [rec (causal-attribution->primary-feelings-and-underlying-needs
                                            verb
-                                           :max-distance 0.2)]
+                                           :max-distance 0.25)]
                                  (if rec
                                    {:verb    verb
                                     :helpers rec})))
@@ -146,7 +146,7 @@
 
 
 (defn- feeling-word-means-needs-met-or-not [feeling-word]
-  (let [threshold 0.2
+  (let [threshold 0.15
         stuff     (remove nil?
                           (map (fn [the-map]
                                  (let [recs-map         (feeling-word-map->recommendations the-map feeling-word threshold)

@@ -21,8 +21,15 @@
       (is (= :attacked (:matched-attribute result))))))
 
 (deftest gets-underlying-needs-for-feeling
-  (let [angry-feeling-1 "angry"
-        angry-feeling-2 "anger"
-        expected-needs  #{:fairness :acknowledgement :understanding :freedom :recognition :justice :autonomy :ease :safety :self-efficacy :choice :respect :consideration}]
+  (let [angry-feeling-1 "defiant"
+        angry-feeling-2 "defyent"
+        expected-needs  #{:belonging :connection :acknowledgement}]
     (is (= expected-needs (nvc/primary-feeling->underlying-needs angry-feeling-1)))
     (is (= expected-needs (nvc/primary-feeling->underlying-needs angry-feeling-2)))))
+
+(def expected-recs '({:causal-attr-recs (), :needs-recs (), :sentence "I can't believe how much of an asshole you've been recently."} {:causal-attr-recs (), :needs-recs ({:word "calm", :recommendations ({:word "calm", :are-met-summary :peaceful, :are-met-synonyms [:blissful :calm :centered :clear-headed :mellow :quiet :serene :tranquil], :recommendation "You said: calm. Are you trying to say your need to feel :peaceful is being met? Or do these other words describe it better? [:blissful :calm :centered :clear-headed :mellow :quiet :serene :tranquil]"})}), :sentence "You treat me like shit and need to learn to calm the fuck down."}))
+
+(deftest text->nvc
+  (let [text "I can't believe how much of an asshole you've been recently.  You treat me like shit and need to learn to calm the fuck down."
+        recs (nvc/text->nvc text)]
+    (is (= expected-recs recs))))

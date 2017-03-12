@@ -102,7 +102,7 @@
                         :underlying-needs [:relaxation :ease :clarity :space :consideration]}
 
    :rejected           {:primary-feelings [:hurt :scared :angry :defiant]
-                        :underlying-needs [:belonging :conection :acknowledgement]}
+                        :underlying-needs [:belonging :connection :acknowledgement]}
 
    :taken-advantage-of {:primary-feelings [:angry :powerless :frustrated]
                         :underlying-needs [:autonomy :power :trust :choice :connection :acknowledgement]}
