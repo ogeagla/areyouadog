@@ -13,6 +13,16 @@
   (is (= true (numberfun/number-contains-number? 123456 45)))
   (is (= true (numberfun/number-contains-number? 123456 123456))))
 
+(deftest accumulates-freq
+  (let [numbers  #{1 3 5}
+        expected {0 0
+                  1 1
+                  2 1
+                  3 2
+                  4 2
+                  5 3}]
+    (is (= expected (numberfun/numbers->cumulative-truth-count numbers)))))
+
 (def causal-attributions ["attacked" "atakked" "attack"])
 (deftest gets-feelings-and-needs-for-causal-attribution-with-fuzzy-match
   (let [mapped (map nvc/causal-attribution->primary-feelings-and-underlying-needs

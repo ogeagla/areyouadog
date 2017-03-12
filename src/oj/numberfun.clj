@@ -2,23 +2,19 @@
   (:require [clojure.test :refer :all]))
 
 (defn numbers->cumulative-truth-count [numbers]
-  "For a given input vector of numbers,
-  [.. 3 1 5 ...] return the cumulative count
+  "For a given input set of numbers,
+  #{.. 3 1 5 ...} return the cumulative count
   of numbers in the vector like so:
-  [{:x 0 :y 0}
-  {:x 1 :y 1}
-  {:x 2 :y 1}
-  {:x 3 :y 2}
-  {:x 4 :y 2}
-  {:x 5 :y 3}...]"
-  (let [max-num   (apply max numbers)
-        domain    (range 0 max-num 1)
-        empty-map (atom {})]
+  {0 0, 1 1, 2 1, 3 2, 4 2, 5 3}"
+  (let [max-num (apply max numbers)
+        domain  (range 0 (+ 1 max-num) 1)
+        acc-map (atom {})]
     (doseq [x domain]
-      (swap! empty-map assoc x 0))
-    ;;TODO for every number in numbers, increment values for all keys smaller than number by 1
-    )
-  )
+      (swap! acc-map assoc x 0))
+    (doseq [number numbers]
+      (doseq [x (range number (+ 1 max-num))]
+        (swap! acc-map update-in [x] inc)))
+    @acc-map))
 
 (defn number->sum-of-digits [number]
   (->>
