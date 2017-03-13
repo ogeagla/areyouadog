@@ -46,26 +46,15 @@
 
 
 (defn filter-fun-numbers [seq & {:keys [position] :or {position :anywhere}}]
-  (let [anywhere   (filter
-                     (fn [item]
-                       (number-contains-number?
-                         item
-                         (number->sum-of-digits item)))
-                     seq)
-        big-end    (filter
-                     (fn [item]
-                       (number-big-end-is-number?
-                         item
-                         (number->sum-of-digits item)))
-                     seq)
-        little-end (filter
-                     (fn [item]
-                       (number-little-end-is-number?
-                         item
-                         (number->sum-of-digits item)))
-                     seq)]
+  (let [filter-fn (fn [the-seq comparator]
+                    (filter
+                      (fn [item]
+                        (comparator
+                          item
+                          (number->sum-of-digits item)))
+                      the-seq))]
     (case position
-      :big-end big-end
-      :little-end little-end
-      :anywhere anywhere
-      anywhere)))
+      :big-end (filter-fn seq number-big-end-is-number?)
+      :little-end (filter-fn seq number-little-end-is-number?)
+      :anywhere (filter-fn seq number-contains-number?)
+      (filter-fn seq number-contains-number?))))
