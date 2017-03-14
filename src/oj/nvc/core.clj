@@ -4,8 +4,7 @@
             [opennlp.nlp :as nlp]
             [opennlp.tools.filters :as nlpf]
     ;[opennlp.treebank :as nlptb]
-            [clojure.pprint :as pp]
-            ))
+            [clojure.pprint :as pp]))
 
 (defn- get-distance [one two & {:keys [algo] :or {algo :jw}}]
   "returns distance between strings,
@@ -17,7 +16,6 @@
       :jw (jw one two)
       :jacc (jacc one two)
       (jw one two))))
-
 
 (defn- get-closest-key-and-distance [target]
   "for a given word, returns the key of
@@ -103,39 +101,49 @@
                         w-distance)]
     recs))
 
-(defn- feeling-word-map->recommendations [the-map feeling-word threshold]
-  (let [not-met-map            (:needs-not-met the-map)
-        are-met-map            (:needs-are-met the-map)
-        not-key                (:summary not-met-map)
-        are-key                (:summary are-met-map)
-        not-vals               (:synonyms not-met-map)
-        are-vals               (:synonyms are-met-map)
-        summary-not-distance   (get-distance not-key feeling-word)
-        summary-are-distance   (get-distance are-key feeling-word)
-        synonyms-not-distances (->> not-vals
-                                    (map (fn [not-val]
-                                           {:val      not-val
-                                            :distance (get-distance not-val feeling-word)}))
-                                    (filter (fn [{:keys [val distance]}]
-                                              (<= distance threshold))))
-        synonyms-are-distances (->> are-vals
-                                    (map (fn [are-val]
-                                           {:val      are-val
-                                            :distance (get-distance are-val feeling-word)}))
-                                    (filter (fn [{:keys [val distance]}]
-                                              (<= distance threshold))))
-        not-rec                (if (or (not-empty synonyms-not-distances)
-                                       (<= summary-not-distance threshold))
-                                 {:word             feeling-word
-                                  :not-met-summary  not-key
-                                  :not-met-synonyms not-vals
-                                  :recommendation   (str "You said: " feeling-word ". Are you trying to say your need to feel " are-key " is NOT being met? Do these other words describe your needs better? " are-vals " Do these other words better describe how you are feeling? " not-vals)})
-        are-rec                (if (or (not-empty synonyms-are-distances)
-                                       (<= summary-are-distance threshold))
-                                 {:word             feeling-word
-                                  :are-met-summary  are-key
-                                  :are-met-synonyms are-vals
-                                  :recommendation   (str "You said: " feeling-word ". Are you trying to say your need to feel " are-key " is being met? Or do these other words describe it better? " are-vals)})]
+(defn- feeling-word-map->recommendations [{:keys [needs-not-met needs-are-met]} feeling-word threshold]
+  (let [not-met-summary-word       (:summary needs-not-met)
+        are-met-summary-word       (:summary needs-are-met)
+        not-met-synonyms           (:synonyms needs-not-met)
+        are-met-synonyms           (:synonyms needs-are-met)
+        summary-not-distance       (get-distance not-met-summary-word feeling-word)
+        summary-are-distance       (get-distance are-met-summary-word feeling-word)
+        not-met-synonyms-distances (->> not-met-synonyms
+                                        (map (fn [not-val]
+                                               {:val      not-val
+                                                :distance (get-distance not-val feeling-word)}))
+                                        (filter (fn [{:keys [val distance]}]
+                                                  (<= distance threshold))))
+        are-met-synonyms-distances (->> are-met-synonyms
+                                        (map (fn [are-val]
+                                               {:val      are-val
+                                                :distance (get-distance are-val feeling-word)}))
+                                        (filter (fn [{:keys [val distance]}]
+                                                  (<= distance threshold))))
+        not-rec                    (if (or (not-empty not-met-synonyms-distances)
+                                           (<= summary-not-distance threshold))
+                                     {:word             feeling-word
+                                      :not-met-summary  not-met-summary-word
+                                      :not-met-synonyms not-met-synonyms
+                                      :recommendation   (str "You said: "
+                                                             feeling-word
+                                                             ". Are you trying to say your need to feel "
+                                                             are-met-summary-word
+                                                             " is NOT being met? Do these other words describe your needs better? "
+                                                             are-met-synonyms
+                                                             " Do these other words better describe how you are feeling? "
+                                                             not-met-synonyms)})
+        are-rec                    (if (or (not-empty are-met-synonyms-distances)
+                                           (<= summary-are-distance threshold))
+                                     {:word             feeling-word
+                                      :are-met-summary  are-met-summary-word
+                                      :are-met-synonyms are-met-synonyms
+                                      :recommendation   (str "You said: "
+                                                             feeling-word
+                                                             ". Are you trying to say your need to feel "
+                                                             are-met-summary-word
+                                                             " is being met? Or do these other words describe it better? "
+                                                             are-met-synonyms)})]
 
 
     ;(into {} (filter (comp some? val) {:are-met-rec are-rec
@@ -167,7 +175,6 @@
                                                  words)))]
     feeling-words))
 
-
 (defn sentence->nvc [sentence]
   (let [parts-of-speech          (pos-tag (tokenize sentence))
         causal-recs              (causal-attribution-rephrasing-recommender parts-of-speech)
@@ -195,5 +202,6 @@
         analysis  (map sentence->nvc sentences)]
     analysis))
 
+(def nvc-helper-tree {})
 
-
+(defn nvc-helper [])
