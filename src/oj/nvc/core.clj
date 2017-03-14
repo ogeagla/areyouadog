@@ -202,6 +202,29 @@
         analysis  (map sentence->nvc sentences)]
     analysis))
 
-(def nvc-helper-tree {})
+(def nvc-helper-tree
+
+  {
+
+   :ingest-text           {:actions [:provide-nvc-recommendations
+                                     :needs-are-met-classification ; TODO this can a binary classifier
+                                     :is-nvc-classification ; TODO this can a binary classifier
+                                     ]}
+   :four-questions        {:questions
+                           [{:prompt       "What do you observe?"
+                             :response-key :observations}
+                            {:prompt       "How does that make you feel?"
+                             :response-key :feelings}
+                            {:prompt       "What needs/values/desires create those feelings?"
+                             :response-key :needs}
+                            {:prompt       "What concrete actions would you like to request?"
+                             :response-key :requests}]}
+
+   :augment-4qs-responses {:observations ()
+                           :feelings     ()
+                           :needs        ()
+                           :requests     ()}
+
+   })
 
 (defn nvc-helper [])
