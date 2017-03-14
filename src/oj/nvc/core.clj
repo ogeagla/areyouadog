@@ -66,7 +66,7 @@
                                    (remove nil?)
                                    flatten
                                    (apply hash-set))]
-    (println "provided feeling: ")
+    (println "provided feeling: " target-primary-feeling)
     (println "best matched feeling: " best-match-feeling)
     (println "its corresponding needs: " needs)
     needs))

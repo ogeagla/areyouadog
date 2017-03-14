@@ -63,17 +63,23 @@
         recs (nvc/text->nvc text)]
     (is (= expected-recs recs))))
 
-(def test-plot-seq (range 10000))
 (deftest plot
-  (let [fun-numbers            (numberfun/filter-fun-numbers test-plot-seq)
+  (println "making a big plot...")
+  (let [start                  0
+        end                    100000
+        test-plot-seq          (range start end)
+        fun-numbers            (numberfun/filter-fun-numbers test-plot-seq)
         fun-numbers-big-end    (numberfun/filter-fun-numbers test-plot-seq :position :big-end)
         fun-numbers-little-end (numberfun/filter-fun-numbers test-plot-seq :position :little-end)
         fun-acc                (numberfun/numbers->cumulative-truth-count fun-numbers)
         fun-scatter            (numberfun/mapxy->vecsxy fun-acc)
-        fun-big-acc                (numberfun/numbers->cumulative-truth-count fun-numbers-big-end)
-        fun-big-scatter            (numberfun/mapxy->vecsxy fun-big-acc)
-        fun-little-acc                (numberfun/numbers->cumulative-truth-count fun-numbers-little-end)
-        fun-little-scatter            (numberfun/mapxy->vecsxy fun-little-acc)]
-    (plots/do-plot fun-scatter "test-output.svg")
-    (plots/do-plot fun-big-scatter "test-output-big-end.svg")
-    (plots/do-plot fun-little-scatter "test-output-little-end.svg")))
+        fun-big-acc            (numberfun/numbers->cumulative-truth-count fun-numbers-big-end)
+        fun-big-scatter        (numberfun/mapxy->vecsxy fun-big-acc)
+        fun-little-acc         (numberfun/numbers->cumulative-truth-count fun-numbers-little-end)
+        fun-little-scatter     (numberfun/mapxy->vecsxy fun-little-acc)]
+    (plots/plot-fun-numbers {:anywhere   fun-scatter
+                             :big-end    fun-big-scatter
+                             :little-end fun-little-scatter
+                             :start      start
+                             :end        end
+                             :plotfile   "test-plot-file-01.svg"})))

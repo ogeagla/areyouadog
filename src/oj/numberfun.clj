@@ -1,6 +1,7 @@
 (ns oj.numberfun
   (:require [clojure.test :refer :all]
-            [clojure.string :as s]))
+            [clojure.string :as s]
+            [oj.plots :as plots]))
 
 (defn numbers->cumulative-truth-count [numbers]
   "For a given input set of numbers,
@@ -58,3 +59,25 @@
       :little-end (filter-fn seq number-little-end-is-number?)
       :anywhere (filter-fn seq number-contains-number?)
       (filter-fn seq number-contains-number?))))
+
+(defn have-fun [start end & {:keys [plotfile] :or {plotfile (format "fun-numbers-plot-%s.svg" (str (System/currentTimeMillis)))}}]
+  (let [domain       (range start end)
+        fun-anywhere (-> domain
+                         filter-fun-numbers
+                         numbers->cumulative-truth-count
+                         mapxy->vecsxy)
+        fun-big-end  (-> domain
+                         (filter-fun-numbers :position :big-end)
+                         numbers->cumulative-truth-count
+                         mapxy->vecsxy)
+        fun-anywhere (-> domain
+                         (filter-fun-numbers :position :little-end)
+                         numbers->cumulative-truth-count
+                         mapxy->vecsxy)]
+    (plots/plot-fun-numbers {:anywhere   fun-anywhere
+                             :big-end    fun-big-end
+                             :little-end number-little-end-is-number?
+                             :start      start
+                             :end        end
+                             :plotfile   plotfile})
+    ))
