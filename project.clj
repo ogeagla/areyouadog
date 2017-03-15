@@ -7,7 +7,8 @@
                  [thi.ng/geom "0.0.908"]
                  [hiccup "1.0.5"]
                  [clj-fuzzy "0.3.3"]
-                 [clojure-opennlp "0.3.3"]]
+                 [clojure-opennlp "0.3.3"]
+                 [me.raynes/fs "1.4.6"]]
   :local-repo ~(System/getenv "M2_REPO")
   :main oj.webapp
   :profiles

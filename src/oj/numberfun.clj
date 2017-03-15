@@ -3,18 +3,17 @@
             [clojure.string :as s]
             [oj.plots :as plots]))
 
-(defn numbers->cumulative-truth-count [numbers]
+(defn numbers->cumulative-truth-count [numbers start end]
   "For a given input set of numbers,
   #{.. 3 1 5 ...} return the cumulative count
   of numbers in the vector like so:
   {0 0, 1 1, 2 1, 3 2, 4 2, 5 3}"
-  (let [max-num (apply max numbers)
-        domain  (range 0 (+ 1 max-num) 1)
+  (let [domain  (range start (+ 1 end) 1)
         acc-map (atom {})]
     (doseq [x domain]
       (swap! acc-map assoc x 0))
     (doseq [number numbers]
-      (doseq [x (range number (+ 1 max-num))]
+      (doseq [x (range number (+ 1 end))]
         (swap! acc-map update-in [x] inc)))
     @acc-map))
 
@@ -61,23 +60,22 @@
       (filter-fn seq number-contains-number?))))
 
 (defn have-fun [start end & {:keys [plotfile] :or {plotfile (format "fun-numbers-plot-%s.svg" (str (System/currentTimeMillis)))}}]
-  (let [domain       (range start end)
-        fun-anywhere (-> domain
-                         filter-fun-numbers
-                         numbers->cumulative-truth-count
-                         mapxy->vecsxy)
-        fun-big-end  (-> domain
-                         (filter-fun-numbers :position :big-end)
-                         numbers->cumulative-truth-count
-                         mapxy->vecsxy)
-        fun-anywhere (-> domain
-                         (filter-fun-numbers :position :little-end)
-                         numbers->cumulative-truth-count
-                         mapxy->vecsxy)]
+  (let [domain         (range start end)
+        fun-anywhere   (-> domain
+                           filter-fun-numbers
+                           (numbers->cumulative-truth-count start end)
+                           mapxy->vecsxy)
+        fun-big-end    (-> domain
+                           (filter-fun-numbers :position :big-end)
+                           (numbers->cumulative-truth-count start end)
+                           mapxy->vecsxy)
+        fun-little-end (-> domain
+                           (filter-fun-numbers :position :little-end)
+                           (numbers->cumulative-truth-count start end)
+                           mapxy->vecsxy)]
     (plots/plot-fun-numbers {:anywhere   fun-anywhere
                              :big-end    fun-big-end
-                             :little-end number-little-end-is-number?
+                             :little-end fun-little-end
                              :start      start
                              :end        end
-                             :plotfile   plotfile})
-    ))
+                             :plotfile   plotfile})))

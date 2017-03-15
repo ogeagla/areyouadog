@@ -2,7 +2,8 @@
   (:require [clojure.test :refer :all]
             [oj.numberfun :as numberfun]
             [oj.nvc.core :as nvc]
-            [oj.plots :as plots]))
+            [oj.plots :as plots]
+            [me.raynes.fs :as fs]))
 
 (def test-seq (range 1000))
 (deftest computes-fun-numbers
@@ -38,7 +39,7 @@
                        [3 2]
                        [4 2]
                        [5 3]]
-        actuals       (numberfun/numbers->cumulative-truth-count numbers)]
+        actuals       (numberfun/numbers->cumulative-truth-count numbers 0 5)]
     (is (= expected actuals))
     (is (= expected-vecs (numberfun/mapxy->vecsxy actuals)))))
 
@@ -64,22 +65,6 @@
     (is (= expected-recs recs))))
 
 (deftest plot
-  (println "making a big plot...")
-  (let [start                  0
-        end                    100000
-        test-plot-seq          (range start end)
-        fun-numbers            (numberfun/filter-fun-numbers test-plot-seq)
-        fun-numbers-big-end    (numberfun/filter-fun-numbers test-plot-seq :position :big-end)
-        fun-numbers-little-end (numberfun/filter-fun-numbers test-plot-seq :position :little-end)
-        fun-acc                (numberfun/numbers->cumulative-truth-count fun-numbers)
-        fun-scatter            (numberfun/mapxy->vecsxy fun-acc)
-        fun-big-acc            (numberfun/numbers->cumulative-truth-count fun-numbers-big-end)
-        fun-big-scatter        (numberfun/mapxy->vecsxy fun-big-acc)
-        fun-little-acc         (numberfun/numbers->cumulative-truth-count fun-numbers-little-end)
-        fun-little-scatter     (numberfun/mapxy->vecsxy fun-little-acc)]
-    (plots/plot-fun-numbers {:anywhere   fun-scatter
-                             :big-end    fun-big-scatter
-                             :little-end fun-little-scatter
-                             :start      start
-                             :end        end
-                             :plotfile   "test-plot-file-01.svg"})))
+  (println "Making a big plot...")
+  (numberfun/have-fun 0 10000 :plotfile "test-plot-file-01.svg")
+  (is (= true (fs/exists? "test-plot-file-01.svg"))))

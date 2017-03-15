@@ -18,6 +18,14 @@
        (spit path)))
 
 (defn plot-fun-numbers [{:keys [anywhere big-end little-end start end plotfile]}]
+  (println "Plotting start, end: " start " , " end)
+  (println "Plotting data count anywhere, big, little: "
+           (count anywhere)
+           " , "
+           (count big-end)
+           " , "
+           (count little-end))
+  (println "Plotfile: " plotfile)
   (let [xs          (range start end)
         x-minor     (/ end 25)
         x-major     (/ end 5)
