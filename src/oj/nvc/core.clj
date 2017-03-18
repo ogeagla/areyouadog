@@ -4,7 +4,8 @@
             [opennlp.nlp :as nlp]
             [opennlp.tools.filters :as nlpf]
     ;[opennlp.treebank :as nlptb]
-            [clojure.pprint :as pp]))
+            [clojure.pprint :as pp]
+            [clojure.set :as set]))
 
 (defn- get-distance [one two & {:keys [algo] :or {algo :jw}}]
   "returns distance between strings,
@@ -206,37 +207,135 @@
   [:i :i'm :im])
 
 (def you-pronouns
-  [:you :she :he :they :yall :y'all [:you :all] :yins])
+  [:you :she :he :they :yall :y'all])
 
 (def sentence-heuristics
   ;TODO max-gap is the gap between the words to still be considered touching
   ;TODO order matters right?
   ;TODO 'e' off ends of words so can use contains?
   {
-   ::order {:max-gap 4
-                        :words   [you-pronouns
-                                  [:need :should :ought :might :better :want :expect :wish]]}
+   ::order       {:max-gap   4
+                  :min-match 2
+                  :words     {0 you-pronouns
+                              1 [:need :should :ought :might :better :want :expect :wish]}}
 
-   ::need    {:max-gap 2
-                        :words   [i-pronouns
-                                  [:need :want :expect :wish :desir :crav]]}
+   ::need        {:max-gap   2
+                  :min-match 2
+                  :words     {0 i-pronouns
+                              1 [:need :want :expect :wish :desir :crav]}}
 
-   ::feeling {:max-gap 2
-                        :words   [i-pronouns
-                                  [:feel]]}
+   ::feeling     {:max-gap   2
+                  :min-match 2
+                  :words     {0 i-pronouns
+                              1 [:feel]}}
 
-   ::observation        {:max-gap 3
-                        :words   [[:when]
-                                  you-pronouns]}
+   ::observation {:max-gap   3
+                  :min-match 2
+                  :words     {0 [:when]
+                              1 you-pronouns}}
 
-   ::request           {:max-gap 2
-                        :words [[:would :can :will :may]
-                                you-pronouns]}})
+   ::request     {:max-gap   2
+                  :min-match 2
+                  :words     {0 [:would :can :will :may]
+                              1 you-pronouns}}
+   })
+
+(defn sanitze-word [word]
+  (clojure.string/lower-case (name word)))
+
+(defn words-match [word1 word2]
+  (let [contains1 (.contains word1 word2)
+        contains2 (.contains word2 word1)
+        distance  (get-distance word1 word2)]
+    ;(println "match test: " word1 word2 distance contains1 contains2)
+    (or
+      (<= distance 0.075)
+      (and (or contains1 contains2)
+           (<= distance 0.25)))))
+
+(defn indexes-present-with-max-gap [vec-of-maps max-gap min-match]
+  "for input: ({:s-i 0}{:s-i 1} nil {:s-i 3} nil ...)
+  if a min number of indexes are in order within gap
+  tolerance, return true; else floss"
+
+  (let [matches*      (atom 0)
+        matched-maps* (atom #{})
+        stride        (+ (* max-gap min-match) (- min-match max-gap))
+        map-w-uuids   (vec (map #(assoc % :id (java.util.UUID/randomUUID)) vec-of-maps))
+        strides       (max 1 (+ 1 (- (count map-w-uuids) stride)))
+        ;_             (println "map w uuids: " map-w-uuids)
+        _ (println "max gap, min match, stride: " max-gap " , " min-match " , " stride)
+        results       (doall (map
+                               (fn [stride-start]
+                                 ;(println "stride start index: " (+ 1 stride-start) " of " strides)
+                                 (let [sub-list     (subvec map-w-uuids stride-start (min (count map-w-uuids) (+ stride stride-start)))
+                                       wo-nils      (vec (keep #(if (contains? % :sentence-index) %) sub-list))
+                                       sent-indexes (map :sentence-index wo-nils)]
+                                   ;(println "wo niles indexes: " (map :sentence-index wo-nils))
+                                   (if (and (not (empty? sent-indexes)) (apply <= sent-indexes))
+                                     (do
+                                       (let [matches-set        (set wo-nils)
+                                             uniq-matches       (set/difference matches-set @matched-maps*)
+                                             uniq-matches-count (count uniq-matches)]
+                                         ;(println "uniq-matches-count: " uniq-matches-count)
+                                         (swap! matched-maps* #(set (concat % uniq-matches)))
+                                         (swap! matches* #(+ % uniq-matches-count))
+                                         (println "matches so far: " @matches*)
+                                         ))
+                                     (do
+                                       ;(println "no match: " stride-start)
+                                       ))))
+                               (range strides)))]
+    (println "matches total, min, matches>=min: " @matches* min-match (>= @matches* min-match))
+    {:does-match? (>= @matches* min-match)
+     :results     @matched-maps*
+     :matches     @matches*}))
+
 
 (defn classify-sentence-using-heuristics [sentence]
   (let [tokens (tokenize sentence)]
-    ;TODO use the map above, more than one thing can match? dunnoz
-    ))
+
+    (println "the tokens: " tokens)
+
+    (map
+      (fn [[class bank-map]]
+        ;for each class in the heuristics map...
+        (let [sentence-matched (map
+                                 (fn [token]
+                                   ;for each token in the sentence...
+                                   (let [best-match-for-token
+                                         (first
+                                           (sort-by
+                                             :distance
+                                             (flatten
+                                               (remove #(or (nil? %) (empty? %))
+                                                       (map
+                                                         (fn [[sentence-index word-bank]]
+                                                           (remove nil?
+                                                                   (map
+                                                                     (fn [word]
+                                                                       ;for each word in the word bank for this sentence class
+                                                                       (let [word-sanitas  (sanitze-word word)
+                                                                             token-sanitas (sanitze-word token)]
+                                                                         (if (words-match token-sanitas word-sanitas)
+                                                                           {:word           word
+                                                                            :token          token
+                                                                            :distance       (get-distance token-sanitas word-sanitas)
+                                                                            :sentence-index sentence-index})))
+                                                                     word-bank)))
+                                                         (:words bank-map))))))]
+                                     ;(println "class, token, best match in bank: " class " , " token " , " best-match-for-token)
+                                     best-match-for-token))
+                                 tokens)]
+          (let [is-class (indexes-present-with-max-gap (vec sentence-matched) (:max-gap bank-map) (:min-match bank-map))]
+            (println "sentence data: " is-class)
+            (println
+              (if (:does-match? is-class)
+                (str "SENTENCE IS CLASS: " class)
+                (str "sentence is not class: " class))))
+          sentence-matched)
+        )
+      sentence-heuristics)))
 
 (def nvc-helper-tree
 
