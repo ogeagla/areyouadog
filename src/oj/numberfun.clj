@@ -1,7 +1,10 @@
 (ns oj.numberfun
   (:require [clojure.test :refer :all]
             [clojure.string :as s]
-            [oj.plots :as plots]))
+            [oj.plots :as plots]
+            [taoensso.nippy :as nippy]))
+
+;;TODO memoize with nippy?
 
 (defn numbers->cumulative-truth-count [numbers start end]
   "For a given input set of numbers,
@@ -60,6 +63,7 @@
       (filter-fn seq number-contains-number?))))
 
 (defn have-fun [start end & {:keys [plotfile] :or {plotfile (format "fun-numbers-plot-%s.svg" (str (System/currentTimeMillis)))}}]
+  (println "Having fun numbers between: " start " and " end)
   (let [domain         (range start end)
         fun-anywhere   (-> domain
                            filter-fun-numbers

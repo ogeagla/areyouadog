@@ -8,7 +8,8 @@
                  [hiccup "1.0.5"]
                  [clj-fuzzy "0.3.3"]
                  [clojure-opennlp "0.3.3"]
-                 [me.raynes/fs "1.4.6"]]
+                 [me.raynes/fs "1.4.6"]
+                 [com.taoensso/nippy "2.13.0"]]
   :local-repo ~(System/getenv "M2_REPO")
   :main oj.webapp
   :profiles

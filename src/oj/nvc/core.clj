@@ -202,6 +202,42 @@
         analysis  (map sentence->nvc sentences)]
     analysis))
 
+(def i-pronouns
+  [:i :i'm :im])
+
+(def you-pronouns
+  [:you :she :he :they :yall :y'all [:you :all] :yins])
+
+(def sentence-heuristics
+  ;TODO max-gap is the gap between the words to still be considered touching
+  ;TODO order matters right?
+  ;TODO 'e' off ends of words so can use contains?
+  {
+   ::order {:max-gap 4
+                        :words   [you-pronouns
+                                  [:need :should :ought :might :better :want :expect :wish]]}
+
+   ::need    {:max-gap 2
+                        :words   [i-pronouns
+                                  [:need :want :expect :wish :desir :crav]]}
+
+   ::feeling {:max-gap 2
+                        :words   [i-pronouns
+                                  [:feel]]}
+
+   ::observation        {:max-gap 3
+                        :words   [[:when]
+                                  you-pronouns]}
+
+   ::request           {:max-gap 2
+                        :words [[:would :can :will :may]
+                                you-pronouns]}})
+
+(defn classify-sentence-using-heuristics [sentence]
+  (let [tokens (tokenize sentence)]
+    ;TODO use the map above, more than one thing can match? dunnoz
+    ))
+
 (def nvc-helper-tree
 
   {

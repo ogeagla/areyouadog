@@ -5,6 +5,8 @@
             [oj.plots :as plots]
             [me.raynes.fs :as fs]))
 
+;; FUN-NUMBERS ----------------------------------------------------------------
+
 (def test-seq (range 1000))
 (deftest computes-fun-numbers
   (let [fun-numbers (numberfun/filter-fun-numbers test-seq)]
@@ -43,6 +45,9 @@
     (is (= expected actuals))
     (is (= expected-vecs (numberfun/mapxy->vecsxy actuals)))))
 
+
+;; NVC ----------------------------------------------------------------
+
 (def causal-attributions ["attacked" "atakked" "attack"])
 (deftest gets-feelings-and-needs-for-causal-attribution-with-fuzzy-match
   (let [mapped (map nvc/causal-attribution->primary-feelings-and-underlying-needs
@@ -63,6 +68,22 @@
   (let [text "I can't believe how much of an asshole you've been recently.  You treat me like shit and need to learn to calm the fuck down."
         recs (nvc/text->nvc text)]
     (is (= expected-recs recs))))
+
+(deftest sentences-classified-using-heuristics
+  (let [order-sentence       "You need to shut up."
+        need-sentence        "I just need you to understand me."
+        feeling-sentence     "I'm just feeling shitty."
+        observation-sentence "Well because when you do that, I'm sad."
+        request-sentence     "Would you mind just quitting that?"]
+
+    (is (= ::nvc/order (nvc/classify-sentence-using-heuristics order-sentence)))
+    (is (= ::nvc/need (nvc/classify-sentence-using-heuristics need-sentence)))
+    (is (= ::nvc/feeling (nvc/classify-sentence-using-heuristics feeling-sentence)))
+    (is (= ::nvc/observation (nvc/classify-sentence-using-heuristics observation-sentence)))
+    (is (= ::nvc/request (nvc/classify-sentence-using-heuristics request-sentence)))))
+
+
+;; PLOTS ----------------------------------------------------------------
 
 (deftest plot
   (println "Making a big plot...")
