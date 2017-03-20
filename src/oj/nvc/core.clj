@@ -251,7 +251,7 @@
     (or
       (<= distance 0.075)
       (and (or contains1 contains2)
-           (<= distance 0.25)))))
+           (<= distance 0.2)))))
 
 (defn indexes-present-with-max-gap [vec-of-maps max-gap min-match]
   "for input: ({:s-i 0}{:s-i 1} nil {:s-i 3} nil ...)
@@ -264,7 +264,7 @@
         map-w-uuids   (vec (map #(assoc % :id (java.util.UUID/randomUUID)) vec-of-maps))
         strides       (max 1 (+ 1 (- (count map-w-uuids) stride)))
         ;_             (println "map w uuids: " map-w-uuids)
-        _ (println "max gap, min match, stride: " max-gap " , " min-match " , " stride)
+        ;_ (println "max gap, min match, stride: " max-gap " , " min-match " , " stride)
         results       (doall (map
                                (fn [stride-start]
                                  ;(println "stride start index: " (+ 1 stride-start) " of " strides)
@@ -280,7 +280,7 @@
                                          ;(println "uniq-matches-count: " uniq-matches-count)
                                          (swap! matched-maps* #(set (concat % uniq-matches)))
                                          (swap! matches* #(+ % uniq-matches-count))
-                                         (println "matches so far: " @matches*)
+                                         ;(println "matches so far: " @matches*)
                                          ))
                                      (do
                                        ;(println "no match: " stride-start)
@@ -300,35 +300,40 @@
     (map
       (fn [[class bank-map]]
         ;for each class in the heuristics map...
-        (let [sentence-matched (map
-                                 (fn [token]
-                                   ;for each token in the sentence...
-                                   (let [best-match-for-token
-                                         (first
-                                           (sort-by
-                                             :distance
-                                             (flatten
-                                               (remove #(or (nil? %) (empty? %))
-                                                       (map
-                                                         (fn [[sentence-index word-bank]]
-                                                           (remove nil?
-                                                                   (map
-                                                                     (fn [word]
-                                                                       ;for each word in the word bank for this sentence class
-                                                                       (let [word-sanitas  (sanitze-word word)
-                                                                             token-sanitas (sanitze-word token)]
-                                                                         (if (words-match token-sanitas word-sanitas)
-                                                                           {:word           word
-                                                                            :token          token
-                                                                            :distance       (get-distance token-sanitas word-sanitas)
-                                                                            :sentence-index sentence-index})))
-                                                                     word-bank)))
-                                                         (:words bank-map))))))]
-                                     ;(println "class, token, best match in bank: " class " , " token " , " best-match-for-token)
-                                     best-match-for-token))
-                                 tokens)]
-          (let [is-class (indexes-present-with-max-gap (vec sentence-matched) (:max-gap bank-map) (:min-match bank-map))]
-            (println "sentence data: " is-class)
+        (let [sentence-matched
+              (map
+                (fn [token]
+                  ;for each token in the sentence...
+                  (let [best-match-for-token
+                        (first
+                          (sort-by
+                            :distance
+                            (flatten
+                              (remove
+                                #(or (nil? %) (empty? %))
+                                (map
+                                  (fn [[sentence-index word-bank]]
+                                    (remove
+                                      nil?
+                                      (map
+                                        (fn [word]
+                                          ;for each word in the word bank for this sentence class
+                                          (let [word-sanitas  (sanitze-word word)
+                                                token-sanitas (sanitze-word token)]
+                                            (if (words-match token-sanitas word-sanitas)
+                                              {:word           word
+                                               :token          token
+                                               :distance       (get-distance token-sanitas word-sanitas)
+                                               :sentence-index sentence-index})))
+                                        word-bank)))
+                                  (:words bank-map))))))]
+                    ;(println "class, token, best match in bank: " class " , " token " , " best-match-for-token)
+                    best-match-for-token))
+                tokens)]
+          (let [is-class
+                (indexes-present-with-max-gap
+                  (vec sentence-matched) (:max-gap bank-map) (:min-match bank-map))]
+            ;(println "sentence data: " is-class)
             (println
               (if (:does-match? is-class)
                 (str "SENTENCE IS CLASS: " class)

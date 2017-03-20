@@ -5,7 +5,6 @@
             [taoensso.nippy :as nippy]))
 
 ;;TODO memoize with nippy?
-
 (defn numbers->cumulative-truth-count [numbers start end]
   "For a given input set of numbers,
   #{.. 3 1 5 ...} return the cumulative count
@@ -45,7 +44,8 @@
     (= test-str big-end)))
 
 (defn number-little-end-is-number? [ref-number number-to-find]
-  (number-big-end-is-number? (s/reverse (str ref-number)) (s/reverse (str number-to-find))))
+  (number-big-end-is-number? (s/reverse (str ref-number))
+                             (s/reverse (str number-to-find))))
 
 
 (defn filter-fun-numbers [seq & {:keys [position] :or {position :anywhere}}]
@@ -62,7 +62,9 @@
       :anywhere (filter-fn seq number-contains-number?)
       (filter-fn seq number-contains-number?))))
 
-(defn have-fun [start end & {:keys [plotfile] :or {plotfile (format "fun-numbers-plot-%s.svg" (str (System/currentTimeMillis)))}}]
+(defn have-fun [start end & {:keys [plotfile] :or
+                                   {plotfile (format "fun-numbers-plot-%s.svg"
+                                                     (str (System/currentTimeMillis)))}}]
   (println "Having fun numbers between: " start " and " end)
   (let [domain         (range start end)
         fun-anywhere   (-> domain
