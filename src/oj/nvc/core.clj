@@ -237,8 +237,7 @@
    ::request     {:max-gap   2
                   :min-match 2
                   :words     {0 [:would :can :will :may]
-                              1 you-pronouns}}
-   })
+                              1 you-pronouns}}})
 
 (defn sanitze-word [word]
   (clojure.string/lower-case (name word)))
@@ -253,8 +252,8 @@
       (and (or contains1 contains2)
            (<= distance 0.2)))))
 
-(defn indexes-present-with-max-gap [vec-of-maps max-gap min-match]
-  "for input: ({:s-i 0}{:s-i 1} nil {:s-i 3} nil ...)
+(defn sentence-is-continuous-with-gaps? [vec-of-maps max-gap min-match]
+  "for input: [{:s-i 0}{:s-i 1} nil {:s-i 3} nil ...]
   if a min number of indexes are in order within gap
   tolerance, return true; else floss"
 
@@ -293,60 +292,58 @@
 
 
 (defn classify-sentence-using-heuristics [sentence]
-  (let [tokens (tokenize sentence)]
+  (let [tokens                     (tokenize sentence)
+        assign-distance-function   (fn [word token sentence-index]
+                                     ;for each word in the word bank for this sentence class
+                                     (let [word-sanitas  (sanitze-word word)
+                                           token-sanitas (sanitze-word token)]
+                                       (if (words-match token-sanitas word-sanitas)
+                                         {:word           word
+                                          :token          token
+                                          :distance       (get-distance token-sanitas word-sanitas)
+                                          :sentence-index sentence-index})))
+        matches-for-token-function (fn [token bank-map]
+                                     ;for each token in the sentence...
+                                     (first
+                                       (sort-by
+                                         :distance
+                                         (flatten
+                                           (remove
+                                             #(or (nil? %) (empty? %))
+                                             (map
+                                               (fn [[sentence-index word-bank]]
+                                                 (remove nil?
+                                                         (map
+                                                           #(assign-distance-function
+                                                              %
+                                                              token
+                                                              sentence-index)
+                                                           word-bank)))
+                                               (:words bank-map)))))))]
 
     (println "the tokens: " tokens)
 
-    (map
-      (fn [[class bank-map]]
-        ;for each class in the heuristics map...
-        (let [sentence-matched
-              (map
-                (fn [token]
-                  ;for each token in the sentence...
-                  (let [best-match-for-token
-                        (first
-                          (sort-by
-                            :distance
-                            (flatten
-                              (remove
-                                #(or (nil? %) (empty? %))
-                                (map
-                                  (fn [[sentence-index word-bank]]
-                                    (remove
-                                      nil?
-                                      (map
-                                        (fn [word]
-                                          ;for each word in the word bank for this sentence class
-                                          (let [word-sanitas  (sanitze-word word)
-                                                token-sanitas (sanitze-word token)]
-                                            (if (words-match token-sanitas word-sanitas)
-                                              {:word           word
-                                               :token          token
-                                               :distance       (get-distance token-sanitas word-sanitas)
-                                               :sentence-index sentence-index})))
-                                        word-bank)))
-                                  (:words bank-map))))))]
-                    ;(println "class, token, best match in bank: " class " , " token " , " best-match-for-token)
-                    best-match-for-token))
-                tokens)]
-          (let [is-class
-                (indexes-present-with-max-gap
-                  (vec sentence-matched) (:max-gap bank-map) (:min-match bank-map))]
-            ;(println "sentence data: " is-class)
-            (println
-              (if (:does-match? is-class)
-                (str "SENTENCE IS CLASS: " class)
-                (str "sentence is not class: " class))))
-          sentence-matched)
-        )
-      sentence-heuristics)))
+    ;TODO return only matching classes
+    (:class (first (keep #(if (:does-match? %) %)
+                         (map (fn [[class bank-map]]
+                                ;for each class in the heuristics map...
+                                (let [sentence-matched (map
+                                                         #(matches-for-token-function % bank-map)
+                                                         tokens)
+                                      is-class         (sentence-is-continuous-with-gaps?
+                                                         (vec sentence-matched) (:max-gap bank-map) (:min-match bank-map))]
+                                  ;(println "sentence data: " is-class)
+                                  (println
+                                    (if (:does-match? is-class)
+                                      (str "SENTENCE IS CLASS: " class)
+                                      (str "sentence is not class: " class)))
+                                  (assoc is-class :class class)))
+                              sentence-heuristics))))))
 
+
+;;TODO still want to go this route?
 (def nvc-helper-tree
-
-  {
-
-   :ingest-text           {:actions [:provide-nvc-recommendations
+  {:ingest-text           {:actions [:provide-nvc-recommendations
                                      :needs-are-met-classification ; TODO this can a binary classifier
                                      :is-nvc-classification ; TODO this can a binary classifier
                                      ]}
@@ -363,8 +360,7 @@
    :augment-4qs-responses {:observations ()
                            :feelings     ()
                            :needs        ()
-                           :requests     ()}
+                           :requests     ()}})
 
-   })
-
+;;TODO still want to go this route?
 (defn nvc-helper [])
