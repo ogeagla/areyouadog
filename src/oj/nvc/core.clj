@@ -261,31 +261,22 @@
         matched-maps* (atom #{})
         stride        (+ (* max-gap min-match) (- min-match max-gap))
         map-w-uuids   (vec (map #(assoc % :id (java.util.UUID/randomUUID)) vec-of-maps))
-        strides       (max 1 (+ 1 (- (count map-w-uuids) stride)))
-        ;_             (println "map w uuids: " map-w-uuids)
-        ;_ (println "max gap, min match, stride: " max-gap " , " min-match " , " stride)
-        results       (doall (map
-                               (fn [stride-start]
-                                 ;(println "stride start index: " (+ 1 stride-start) " of " strides)
-                                 (let [sub-list     (subvec map-w-uuids stride-start (min (count map-w-uuids) (+ stride stride-start)))
-                                       wo-nils      (vec (keep #(if (contains? % :sentence-index) %) sub-list))
-                                       sent-indexes (map :sentence-index wo-nils)]
-                                   ;(println "wo niles indexes: " (map :sentence-index wo-nils))
-                                   (if (and (not (empty? sent-indexes)) (apply <= sent-indexes))
-                                     (do
-                                       (let [matches-set        (set wo-nils)
-                                             uniq-matches       (set/difference matches-set @matched-maps*)
-                                             uniq-matches-count (count uniq-matches)]
-                                         ;(println "uniq-matches-count: " uniq-matches-count)
-                                         (swap! matched-maps* #(set (concat % uniq-matches)))
-                                         (swap! matches* #(+ % uniq-matches-count))
-                                         ;(println "matches so far: " @matches*)
-                                         ))
-                                     (do
-                                       ;(println "no match: " stride-start)
-                                       ))))
-                               (range strides)))]
-    (println "matches total, min, matches>=min: " @matches* min-match (>= @matches* min-match))
+        strides       (max 1 (+ 1 (- (count map-w-uuids) stride)))]
+
+    (doseq [stride-start (range strides)]
+      (let [sub-list     (subvec map-w-uuids
+                                 stride-start
+                                 (min (count map-w-uuids)
+                                      (+ stride stride-start)))
+            wo-nils      (vec (keep #(if (contains? % :sentence-index) %) sub-list))
+            sent-indexes (map :sentence-index wo-nils)]
+        (if (and (not (empty? sent-indexes))
+                 (apply <= sent-indexes))
+          (let [matches-set        (set wo-nils)
+                uniq-matches       (set/difference matches-set @matched-maps*)
+                uniq-matches-count (count uniq-matches)]
+            (swap! matched-maps* #(set (concat % uniq-matches)))
+            (swap! matches* #(+ % uniq-matches-count))))))
     {:does-match? (>= @matches* min-match)
      :results     @matched-maps*
      :matches     @matches*}))

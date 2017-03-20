@@ -69,19 +69,20 @@
         recs (nvc/text->nvc text)]
     (is (= expected-recs recs))))
 
-;;TODO make this pass
-#_(deftest sentences-classified-using-heuristics
+;;TODO make this pass with all assertions
+(deftest sentences-classified-using-heuristics
     (let [order-sentence       "You need to shut up."
-          need-sentence        "I just need you to understand me."
+          need-sentence        "I feel sad."
           feeling-sentence     "I'm just feeling shitty."
           observation-sentence "When you do stuff..."
           request-sentence     "Would you mind just quitting that?"]
 
-      (is (= ::nvc/order (nvc/classify-sentence-using-heuristics order-sentence)))
-      (is (= ::nvc/need (nvc/classify-sentence-using-heuristics need-sentence)))
+      ;(is (= ::nvc/order (nvc/classify-sentence-using-heuristics order-sentence)))
+      ;(is (= ::nvc/need (nvc/classify-sentence-using-heuristics need-sentence)))
       (is (= ::nvc/feeling (nvc/classify-sentence-using-heuristics feeling-sentence)))
-      (is (= ::nvc/observation (nvc/classify-sentence-using-heuristics observation-sentence)))
-      (is (= ::nvc/request (nvc/classify-sentence-using-heuristics request-sentence)))))
+      ;(is (= ::nvc/observation (nvc/classify-sentence-using-heuristics observation-sentence)))
+      ;(is (= ::nvc/request (nvc/classify-sentence-using-heuristics request-sentence)))
+      ))
 
 (deftest sentence-is-continuous-w-gaps
   (let [input1 [{:sentence-index 0} {:sentence-index 1} {:sentence-index 2}]
