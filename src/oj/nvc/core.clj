@@ -295,22 +295,21 @@
                                           :sentence-index sentence-index})))
         matches-for-token-function (fn [token bank-map]
                                      ;for each token in the sentence...
-                                     (first
-                                       (sort-by
-                                         :distance
-                                         (flatten
-                                           (remove
-                                             #(or (nil? %) (empty? %))
-                                             (map
-                                               (fn [[sentence-index word-bank]]
-                                                 (remove nil?
-                                                         (map
-                                                           #(assign-distance-function
-                                                              %
-                                                              token
-                                                              sentence-index)
-                                                           word-bank)))
-                                               (:words bank-map)))))))]
+                                     (->>
+                                       (map
+                                         (fn [[sentence-index word-bank]]
+                                           (remove nil?
+                                                   (map
+                                                     #(assign-distance-function
+                                                        %
+                                                        token
+                                                        sentence-index)
+                                                     word-bank)))
+                                         (:words bank-map))
+                                       (remove #(or (nil? %) (empty? %)))
+                                       flatten
+                                       (sort-by :distance)
+                                       first))]
 
     (println "the tokens: " tokens)
 
