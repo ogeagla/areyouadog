@@ -48,8 +48,9 @@
                              (s/reverse (str number-to-find))))
 
 
-(defn filter-fun-numbers [seq & {:keys [position] :or {position :anywhere}}]
-  (let [filter-fn (fn [the-seq comparator]
+(defn get-fun-numbers [{:keys [start end]} & {:keys [position] :or {position :anywhere}}]
+  (let [domain       (range start end)
+        filter-fn (fn [the-seq comparator]
                     (filter
                       (fn [item]
                         (comparator
@@ -57,26 +58,27 @@
                           (number->sum-of-digits item)))
                       the-seq))]
     (case position
-      :big-end (filter-fn seq number-big-end-is-number?)
-      :little-end (filter-fn seq number-little-end-is-number?)
-      :anywhere (filter-fn seq number-contains-number?)
-      (filter-fn seq number-contains-number?))))
+      :big-end (filter-fn domain number-big-end-is-number?)
+      :little-end (filter-fn domain number-little-end-is-number?)
+      :anywhere (filter-fn domain number-contains-number?)
+      (filter-fn domain number-contains-number?))))
 
 (defn have-fun [start end & {:keys [plotfile] :or
                                    {plotfile (format "fun-numbers-plot-%s.svg"
                                                      (str (System/currentTimeMillis)))}}]
   (println "Having fun numbers between: " start " and " end)
-  (let [domain         (range start end)
-        fun-anywhere   (-> domain
-                           filter-fun-numbers
+  (let [config         {:start start
+                        :end   end}
+        fun-anywhere   (-> config
+                           get-fun-numbers
                            (numbers->cumulative-truth-count start end)
                            mapxy->vecsxy)
-        fun-big-end    (-> domain
-                           (filter-fun-numbers :position :big-end)
+        fun-big-end    (-> config
+                           (get-fun-numbers :position :big-end)
                            (numbers->cumulative-truth-count start end)
                            mapxy->vecsxy)
-        fun-little-end (-> domain
-                           (filter-fun-numbers :position :little-end)
+        fun-little-end (-> config
+                           (get-fun-numbers :position :little-end)
                            (numbers->cumulative-truth-count start end)
                            mapxy->vecsxy)]
     (plots/plot-fun-numbers {:anywhere   fun-anywhere
