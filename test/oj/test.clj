@@ -7,6 +7,17 @@
 
 ;; FUN-NUMBERS ----------------------------------------------------------------
 
+;;TODO
+(deftest merges-caches
+  (let []))
+
+(deftest merges-domains
+  (let [d1 [0 5]
+        d2 [3 7]
+        d3 [10 15]]
+    (is (= [[0 7]] (numberfun/merge-domains d1 d2)))
+    (is (= [[0 5] [10 15]] (numberfun/merge-domains d1 d3)))))
+
 (deftest computes-fun-numbers
   (let [fun-numbers (numberfun/get-fun-numbers {:start 0 :end 1000})]
     (println "fun numbers: " fun-numbers)
@@ -70,18 +81,18 @@
 
 ;;TODO make this pass with all assertions
 (deftest sentences-classified-using-heuristics
-    (let [order-sentence       "You need to shut up."
-          need-sentence        "I feel sad."
-          feeling-sentence     "I'm just feeling shitty."
-          observation-sentence "When you do stuff..."
-          request-sentence     "Would you mind just quitting that?"]
+  (let [order-sentence       "You need to shut up."
+        need-sentence        "I feel sad."
+        feeling-sentence     "I'm just feeling shitty."
+        observation-sentence "When you do stuff..."
+        request-sentence     "Would you mind just quitting that?"]
 
-      ;(is (= ::nvc/order (nvc/classify-sentence-using-heuristics order-sentence)))
-      ;(is (= ::nvc/need (nvc/classify-sentence-using-heuristics need-sentence)))
-      (is (= ::nvc/feeling (nvc/classify-sentence-using-heuristics feeling-sentence)))
-      ;(is (= ::nvc/observation (nvc/classify-sentence-using-heuristics observation-sentence)))
-      ;(is (= ::nvc/request (nvc/classify-sentence-using-heuristics request-sentence)))
-      ))
+    ;(is (= ::nvc/order (nvc/classify-sentence-using-heuristics order-sentence)))
+    ;(is (= ::nvc/need (nvc/classify-sentence-using-heuristics need-sentence)))
+    (is (= ::nvc/feeling (nvc/classify-sentence-using-heuristics feeling-sentence)))
+    ;(is (= ::nvc/observation (nvc/classify-sentence-using-heuristics observation-sentence)))
+    ;(is (= ::nvc/request (nvc/classify-sentence-using-heuristics request-sentence)))
+    ))
 
 (deftest sentence-is-continuous-w-gaps
   (let [input1 [{:sentence-index 0} {:sentence-index 1} {:sentence-index 2}]

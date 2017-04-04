@@ -2,7 +2,107 @@
   (:require [clojure.test :refer :all]
             [clojure.string :as s]
             [oj.plots :as plots]
-            [taoensso.nippy :as nippy]))
+            [taoensso.nippy :as nippy]
+            [clojure.set :as set]))
+
+
+(def persisten-cache-init*
+  (atom
+    {:anywhere   {:domains #{}
+                  :numbers #{}}
+     :big-end    {:domains #{}
+                  :numbers #{}}
+     :little-end {:domains #{}
+                  :numbers #{}}}))
+
+
+(defn merge-domains [domain1 domain2]
+  (let [s1 (first domain1)
+        s2 (first domain2)
+        e1 (second domain1)
+        e2 (second domain2)]
+    (if (> e1 s2)
+      (let [s3 (if (> s1 s2)
+                 s2
+                 s1)
+            e3 (if (< e1 e2)
+                 e2
+                 e1)]
+        [[s3 e3]])
+      [domain1 domain2])))
+
+(defn consolidate-domains [domain]
+  "
+  #{[0 5] [2 3] [10 20] [18 21]} ->
+  #{[0 5] [10 21]}
+
+  do this by mapping each vec to a range,
+  concat the ranges together,
+  then scan through the single vec and cut at
+  the discontinuities (difference between
+  subsequent elements > 1
+
+  ---->>> or sort by start element:
+  [ [0 5] [2 7] [10 15] ]
+  and then start with first one
+  and see if next can collapse,
+  if so, do it, if not, accumulate
+  "
+  (let [domain*          (atom [])
+        ordered-by-start (vec (sort-by first (vec domain)))]
+    (doseq [i (range (count domain))]
+      (let [dom (get ordered-by-start i)]
+        (if (= 0 i)
+          (swap! domain* conj dom)
+          (let [domains-so-far @domain*
+                last-dom       (last domains-so-far)
+                buttlast       (butlast domains-so-far)
+                last-merged    (merge-domains last-dom dom)]
+            (reset! domain* buttlast)
+            (doseq [domain-to-put last-merged]
+              (swap! domain* conj domain-to-put))
+            (reset! domain* (set @domain*))
+            (println "domains: " @domain*)))))
+    @domain*))
+
+(defn merge-atoms [one* two*]
+  "Atoms look like:
+    (atom
+      {:anywhere   {:domains #{[a b] [c d] ...}
+                    :numbers #{n1 n2 ...}}..."
+  (let [new-atom*    (atom {})
+        one-types    (set (keys @one*))
+        two-types    (set (keys @two*))
+        ;;types common to both sets
+        common-types (set/intersection one-types two-types)
+        ;;types which are not in common
+        unique-types (set/difference (set/union one-types two-types) (set/intersection one-types two-types))]
+    (reset! new-atom* (merge @one* @two*))
+    (doseq [the-common-type common-types]
+      (let [one-domains    (-> @one*
+                               the-common-type
+                               :domains)
+            two-domains    (-> @two*
+                               the-common-type
+                               :domains)
+            one-numbers    (-> @one*
+                               the-common-type
+                               :numbers)
+            two-numbers    (-> @two*
+                               the-common-type
+                               :numbers)
+            _              (println one-domains
+                                    two-domains
+                                    one-numbers
+                                    two-numbers)
+            merged-domains (consolidate-domains (set/union one-domains two-domains))
+            merged-numbers (set/union one-numbers two-numbers)]
+        (swap! new-atom* assoc the-common-type {:domains merged-domains
+                                                :numbers merged-numbers})))
+    @new-atom*))
+
+
+(merge-atoms persisten-cache-init* (load-some-cache-from-disk-w-nippy))
 
 ;;TODO memoize with nippy?
 (defn numbers->cumulative-truth-count [numbers start end]
@@ -49,7 +149,7 @@
 
 
 (defn get-fun-numbers [{:keys [start end]} & {:keys [position] :or {position :anywhere}}]
-  (let [domain       (range start end)
+  (let [domain    (range start end)
         filter-fn (fn [the-seq comparator]
                     (filter
                       (fn [item]
