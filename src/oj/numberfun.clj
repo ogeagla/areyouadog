@@ -91,18 +91,14 @@
             two-numbers    (-> @two*
                                the-common-type
                                :numbers)
-            _              (println one-domains
-                                    two-domains
-                                    one-numbers
-                                    two-numbers)
             merged-domains (consolidate-domains (set/union one-domains two-domains))
             merged-numbers (set/union one-numbers two-numbers)]
         (swap! new-atom* assoc the-common-type {:domains merged-domains
                                                 :numbers merged-numbers})))
     @new-atom*))
 
-
-(merge-atoms persisten-cache-init* (load-some-cache-from-disk-w-nippy))
+;;TODO:
+;(merge-atoms persisten-cache-init* (load-some-cache-from-disk-w-nippy))
 
 ;;TODO memoize with nippy?
 (defn numbers->cumulative-truth-count [numbers start end]
