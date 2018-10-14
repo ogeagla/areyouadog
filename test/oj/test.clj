@@ -21,7 +21,7 @@
 (deftest computes-fun-numbers
   (let [fun-numbers (numberfun/get-fun-numbers {:start 0 :end 1000})]
     (println "fun numbers: " fun-numbers)
-    (is (= 48 (count fun-numbers)))))
+    (is (= 49 (count fun-numbers)))))
 
 (deftest number-contains
   (is (= true (numberfun/number-contains-number? 123456 45)))
@@ -112,5 +112,5 @@
 
 (deftest plot
   (println "Making a big plot...")
-  (numberfun/have-fun 0 10000 :plotfile "test-plot-file-01.svg")
+  (numberfun/have-cumulative-fun 0 1000 :plotfile "test-plot-file-01.svg")
   (is (= true (fs/exists? "test-plot-file-01.svg"))))

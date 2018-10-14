@@ -1,7 +1,6 @@
 (ns oj.plots
   (:require [thi.ng.geom.viz.core :as viz]
             [thi.ng.geom.svg.core :as svg]
-            [thi.ng.geom.core.vector :as v]
             [thi.ng.color.core :as col]
             [thi.ng.math.core :as m :refer [PI TWO_PI]]))
 
@@ -17,7 +16,7 @@
        (svg/serialize)
        (spit path)))
 
-(defn plot-fun-numbers [{:keys [anywhere big-end little-end start end plotfile]}]
+(defn plot-cumulative-fun-numbers [{:keys [anywhere big-end little-end start end plotfile]}]
   (println "Plotting start, end: " start " , " end)
   (println "Plotting data count anywhere, big, little: "
            (count anywhere)
